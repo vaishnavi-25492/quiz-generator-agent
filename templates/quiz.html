@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>{{ topic }} Quiz</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="quiz-container">
+
+    <h1>{{ topic }} Quiz</h1>
+
+    <p class="subtitle">
+        Difficulty: {{ difficulty }}
+    </p>
+
+    <form action="/submit" method="POST">
+
+        {% for question in quiz.questions %}
+
+        <div class="question-card">
+
+            <h3>
+                Question {{ loop.index }}
+            </h3>
+
+            <p class="question">
+                {{ question.question }}
+            </p>
+
+            {% for option in question.options %}
+
+            <label class="option">
+
+                <input
+                    type="radio"
+                    name="question_{{ loop.index0 }}"
+                    value="{{ loop.index0 }}"
+                    required
+                >
+
+                {{ option }}
+
+            </label>
+
+            {% endfor %}
+
+        </div>
+
+        {% endfor %}
+
+        <button type="submit">
+            Submit Quiz
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+
+</html>
