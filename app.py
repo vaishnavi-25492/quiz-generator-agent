@@ -64,9 +64,9 @@ For the answer value:
 """
 
     response = client.responses.create(
-        model="gpt-5.6",
-        input=prompt
-    )
+    model="gpt-5",
+    input=prompt
+)
 
     result = response.output_text.strip()
 
