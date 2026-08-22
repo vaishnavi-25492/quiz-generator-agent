@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session, redirect, url_for
-from openai import OpenAI
+from google import genai
 import os
 import json
 
@@ -12,7 +12,7 @@ app.secret_key = os.environ.get(
 )
 
 # OpenAI client
-client = OpenAI(
+client = genai.Client(
     api_key=os.environ.get("GEMINI_API_KEY")
 )
 
