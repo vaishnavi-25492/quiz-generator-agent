@@ -1,1 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Quiz Generator</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="card">
+
+        <h1>AI Quiz Generator</h1>
+
+        <p class="subtitle">
+            Generate a quiz on any topic using AI
+        </p>
+
+        {% if error %}
+        <div class="error">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form action="/generate" method="POST">
+
+            <label for="topic">
+                Enter Topic
+            </label>
+
+            <input
+                type="text"
+                id="topic"
+                name="topic"
+                placeholder="Example: Python Programming"
+                required
+            >
+
+            <label for="difficulty">
+                Select Difficulty
+            </label>
+
+            <select
+                id="difficulty"
+                name="difficulty"
+            >
+                <option value="Easy">
+                    Easy
+                </option>
+
+                <option value="Medium" selected>
+                    Medium
+                </option>
+
+                <option value="Hard">
+                    Hard
+                </option>
+            </select>
+
+            <label for="num_questions">
+                Number of Questions
+            </label>
+
+            <select
+                id="num_questions"
+                name="num_questions"
+            >
+                <option value="5">
+                    5 Questions
+                </option>
+
+                <option value="10">
+                    10 Questions
+                </option>
+
+                <option value="15">
+                    15 Questions
+                </option>
+
+                <option value="20">
+                    20 Questions
+                </option>
+            </select>
+
+            <button type="submit">
+                Generate Quiz
+            </button>
+
+        </form>
+
+    </div>
+
+</div>
+
+</body>
+
+</html>
