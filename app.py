@@ -1,4 +1,3 @@
-````python
 from flask import Flask, render_template, request, session, redirect, url_for
 from google import genai
 import os
@@ -13,7 +12,7 @@ app.secret_key = os.environ.get(
 )
 
 # --------------------------------------------------
-# Gemini Client
+# Gemini API Client
 # --------------------------------------------------
 
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
@@ -51,9 +50,9 @@ Rules:
 7. Give a short explanation for every correct answer.
 8. Return ONLY valid JSON.
 9. Do not use Markdown.
-10. Do not put the JSON inside ```json code fences.
+10. Do not put the JSON inside code fences.
 
-Use exactly this JSON structure:
+Use exactly this format:
 
 {{
     "questions": [
@@ -78,31 +77,22 @@ For the answer value:
 3 = Option D
 """
 
-    # --------------------------------------------------
-    # Gemini API call
-    # --------------------------------------------------
-
+    # Call Gemini
     response = client.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt
     )
 
-    # Get Gemini's response text
+    # Get Gemini response
     result = response.text.strip()
 
-    # --------------------------------------------------
-    # Clean possible Markdown code fences
-    # --------------------------------------------------
-
+    # Remove Markdown code fences if Gemini adds them
     if result.startswith("```"):
         result = result.replace("```json", "")
         result = result.replace("```", "")
         result = result.strip()
 
-    # --------------------------------------------------
-    # Convert response to Python dictionary
-    # --------------------------------------------------
-
+    # Convert JSON to Python dictionary
     try:
         quiz = json.loads(result)
     except json.JSONDecodeError as error:
@@ -110,20 +100,17 @@ For the answer value:
             f"Gemini returned invalid JSON: {error}"
         )
 
-    # --------------------------------------------------
-    # Validate quiz structure
-    # --------------------------------------------------
-
+    # Validate questions
     if "questions" not in quiz:
         raise ValueError(
-            "Gemini response does not contain 'questions'."
+            "Gemini response does not contain questions."
         )
 
     questions = quiz["questions"]
 
     if not isinstance(questions, list):
         raise ValueError(
-            "'questions' must be a list."
+            "Questions must be a list."
         )
 
     if len(questions) != number_of_questions:
@@ -132,27 +119,27 @@ For the answer value:
             f"but Gemini returned {len(questions)}."
         )
 
-    # Validate every question
+    # Validate each question
     for index, question in enumerate(questions):
 
         if "question" not in question:
             raise ValueError(
-                f"Question {index + 1} is missing 'question'."
+                f"Question {index + 1} is missing question text."
             )
 
         if "options" not in question:
             raise ValueError(
-                f"Question {index + 1} is missing 'options'."
+                f"Question {index + 1} is missing options."
             )
 
         if "answer" not in question:
             raise ValueError(
-                f"Question {index + 1} is missing 'answer'."
+                f"Question {index + 1} is missing answer."
             )
 
         if "explanation" not in question:
             raise ValueError(
-                f"Question {index + 1} is missing 'explanation'."
+                f"Question {index + 1} is missing explanation."
             )
 
         if len(question["options"]) != 4:
@@ -162,7 +149,7 @@ For the answer value:
 
         if question["answer"] not in [0, 1, 2, 3]:
             raise ValueError(
-                f"Question {index + 1} has an invalid answer index."
+                f"Question {index + 1} has an invalid answer."
             )
 
     return quiz
@@ -181,7 +168,7 @@ def home():
 
 
 # --------------------------------------------------
-# Generate Quiz Route
+# Generate Quiz
 # --------------------------------------------------
 
 @app.route("/generate", methods=["POST"])
@@ -198,20 +185,19 @@ def generate():
     )
 
     try:
+
         number_of_questions = int(
             request.form.get(
                 "num_questions",
                 5
             )
         )
+
     except (TypeError, ValueError):
 
         number_of_questions = 5
 
-    # --------------------------------------------------
     # Check topic
-    # --------------------------------------------------
-
     if not topic:
 
         return render_template(
@@ -219,24 +205,16 @@ def generate():
             error="Please enter a topic."
         )
 
-    # --------------------------------------------------
     # Limit number of questions
-    # --------------------------------------------------
-
     if number_of_questions < 1:
-
         number_of_questions = 1
 
     if number_of_questions > 20:
-
         number_of_questions = 20
-
-    # --------------------------------------------------
-    # Generate quiz
-    # --------------------------------------------------
 
     try:
 
+        # Generate quiz with Gemini
         quiz = generate_quiz(
             topic,
             difficulty,
@@ -247,7 +225,7 @@ def generate():
         session["quiz"] = quiz
         session["topic"] = topic
 
-        # Display quiz
+        # Show quiz page
         return render_template(
             "quiz.html",
             quiz=quiz,
@@ -276,7 +254,7 @@ def submit():
 
     quiz = session.get("quiz")
 
-    # If no quiz exists
+    # No quiz found
     if not quiz:
 
         return redirect(
@@ -287,10 +265,7 @@ def submit():
 
     results = []
 
-    # --------------------------------------------------
-    # Check every question
-    # --------------------------------------------------
-
+    # Check each question
     for index, question in enumerate(
         quiz["questions"]
     ):
@@ -342,18 +317,12 @@ def submit():
                 correct
         })
 
-    # --------------------------------------------------
-    # Calculate total
-    # --------------------------------------------------
-
+    # Total questions
     total = len(
         quiz["questions"]
     )
 
-    # --------------------------------------------------
     # Calculate percentage
-    # --------------------------------------------------
-
     if total > 0:
 
         percentage = round(
@@ -364,10 +333,7 @@ def submit():
 
         percentage = 0
 
-    # --------------------------------------------------
     # Performance message
-    # --------------------------------------------------
-
     if percentage >= 80:
 
         performance = "Excellent!"
@@ -384,10 +350,7 @@ def submit():
 
         performance = "Keep Practicing!"
 
-    # --------------------------------------------------
     # Show result page
-    # --------------------------------------------------
-
     return render_template(
         "result.html",
         results=results,
@@ -403,7 +366,7 @@ def submit():
 
 
 # --------------------------------------------------
-# Run Application
+# Start Flask Application
 # --------------------------------------------------
 
 if __name__ == "__main__":
@@ -420,4 +383,3 @@ if __name__ == "__main__":
         port=port,
         debug=False
     )
-````
