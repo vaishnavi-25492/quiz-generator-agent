@@ -13,7 +13,7 @@ app.secret_key = os.environ.get(
 
 # OpenAI client
 client = OpenAI(
-    api_key=os.environ.get("OPENAI_API_KEY")
+    api_key=os.environ.get("GEMINI_API_KEY")
 )
 
 
